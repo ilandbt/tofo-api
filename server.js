@@ -29,7 +29,7 @@ app.get('/todos', function(req, res) {
 
 //get todo item by id
 app.get('/todos/:id', function(req, res){
-	var todoId = parseInt(req.params.id. 10);
+	var todoId = parseInt(req.params.id, 10);
 	var matchedTodo;
 	
 	todos.forEach(function(todoItem){
