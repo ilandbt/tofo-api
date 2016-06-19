@@ -40,6 +40,7 @@ app.get('/todos/:id', function(req, res){
 
 //post new todo item
 app.post('/todos', function(req, res) {
+	//get only compelted, description fields
 	var body = _.pick(req.body, "completed", "description");
 
 	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
@@ -53,6 +54,23 @@ app.post('/todos', function(req, res) {
 
 	res.send(body);
 });
+
+
+//deleted an item
+app.delete('/todos/:id', function(req, res) {
+
+	var todoId = parseInt(req.params.id, 10);
+	var matchedTodo = _.findWhere(todos, {id: todoId});
+
+	if (!matchedTodo) {
+		res.status(400).json({"message":"no item found"});
+	}
+
+	todos = _.without(todos, matchedTodo);
+
+	res.send(matchedTodo);
+});
+
 
 app.listen(PORT, function() {
 	console.log('Express listening to port : ' + PORT);
