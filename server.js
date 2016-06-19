@@ -22,28 +22,32 @@ app.get('/', function(req, res) {
 
 app.get('/todos', function(req, res) {
 	var queryParams = req.query;
-	var filteredTodos = todos;
+	var where = {};
 
-	//added query params - completed
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-		filteredTodos = _.where(filteredTodos, {
-			completed: true
-		});
+		where.completed = true;
 	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-		filteredTodos = _.where(filteredTodos, {
-			completed: false
-		});
+		where.completed = false;
 	}
 
-	//added query params - description
+
 	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 
-		filteredTodos = _.filter(filteredTodos, function(todo) {
-			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-		});
+		where.description = {
+			$like: '%' + queryParams.q + '%'
+		};
 	}
 
-	res.json(filteredTodos);
+	db.todo.findAll({
+			where: where
+		})
+		.then(function(todos) {
+			res.json(todos);
+		}, function(error) {
+
+			console.log(error);
+			return res.status(500).send();
+		});
 });
 
 //get todo item by id
