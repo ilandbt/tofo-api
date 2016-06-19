@@ -50,17 +50,20 @@ app.get('/todos', function(req, res) {
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 
-	// underscore find one function
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
+	db.todo.findById(todoId)
+		.then(function(todo) {
+
+			if (!!todo) {
+				return res.json(todo.toJSON());
+			} else {
+				return res.status(404).send();
+			}
 
 
-	if (matchedTodo) {
-		res.json(matchedTodo);
-	} else {
-		res.status(404).send();
-	}
+		}, function(error) {
+			console.log(error);
+			return res.status(500).send();
+		});
 });
 
 //post new todo item
