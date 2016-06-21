@@ -90,18 +90,22 @@ app.post('/todos', function(req, res) {
 app.delete('/todos/:id', function(req, res) {
 
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
+	db.todo.destroy({
+		where: {
+			id: todoId
+		}
+	}).then(function(rowsDeleted){
+		if (rowsDeleted === 0) {
+			res.status(404).json({
+				"message": "no item found"
+			});
+		} else {
+			res.status(204).send();
+		}
+
+	}, function() {
+
 	});
-
-	if (!matchedTodo) {
-		return res.status(400).json({
-			"message": "no item found"
-		});
-	}
-
-	todos = _.without(todos, matchedTodo);
-	res.send(matchedTodo);
 });
 
 //update an item
