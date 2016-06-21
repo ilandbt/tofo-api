@@ -144,14 +144,14 @@ app.put('/todos/:id', function(req, res) {
 
 
 //USER//
-//post new todo item
+//post new user
 app.post('/users', function(req, res) {
 	//get only completed, description fields
 	var body = _.pick(req.body, "email", "password");
 
 	db.user.create(body)
 		.then(function(user) {
-			res.json(user.toJSON());
+			res.json(user.toPublicJSON());
 
 		}, function(error) {
 			console.log(error);
@@ -159,7 +159,9 @@ app.post('/users', function(req, res) {
 		});
 });
 
-db.sequelize.sync().then(function() {
+db.sequelize.sync({
+	force: true
+}).then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening to port : ' + PORT);
 	});
