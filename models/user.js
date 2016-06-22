@@ -66,6 +66,33 @@ module.exports = function(sequalize, DataTypes) {
 						reject();
 					});
 				});
+			},
+			findByToken: function(token) {
+				return new Promise(function(resolve, reject) {
+					try {
+						var decodedJwt = jwt.verify(token, 'qwr1234');
+						console.log('decodedJwt: ' + decodedJwt);
+						var bytes = cryptojs.AES.decrypt(decodedJwt.token, 'abc123#$%');
+						console.log('bytes: ' + bytes);
+						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8));
+						console.log('tokenData: ' + tokenData);
+
+						var userId = tokenData.id;
+						console.log('userId: ' + userId);
+						user.findById(userId).then(function(user) {
+						console.log('user: ' + user);
+							if (user) {
+								resolve(user);
+							} else {
+								reject();
+							}
+						}, function() {
+							reject();
+						});
+					} catch (error) {
+						reject();
+					}
+				});
 			}
 		},
 		instanceMethods: {
