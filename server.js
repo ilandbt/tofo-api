@@ -1,8 +1,8 @@
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
-
 var app = require('./app.js');
+var bcrypt = require('bcrypt');
 
 var PORT = process.env.PORT || 3000;
 
@@ -157,6 +157,20 @@ app.post('/users', function(req, res) {
 			console.log(error);
 			return res.status(400).json(error);
 		});
+});
+
+//login
+app.post('/users/login', function(req, res) {
+
+	var body = _.pick(req.body, "email", "password");
+
+	db.user.authenticate(body)
+		.then(function(user) {
+			res.json(user.toPublicJSON());
+		}, function() {
+			res.status(401).send();
+		});
+
 });
 
 db.sequelize.sync({
