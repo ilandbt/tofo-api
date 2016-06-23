@@ -20,5 +20,10 @@ db.user = sequelize.import(__dirname + '/models/user.js');
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+//associate every user has many todos
+//every todo belongs to one user
+db.todo.belongsTo(db.user);
+db.user.hasMany(db.todo);
+
 
 module.exports = db;
