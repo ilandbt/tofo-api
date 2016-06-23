@@ -22,7 +22,9 @@ app.get('/', function(req, res) {
 
 app.get('/todos', middleware.requireAuthentication, function(req, res) {
 	var queryParams = req.query;
-	var where = {};
+	var where = {
+		userId: req.user.id
+	};
 
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
 		where.completed = true;
@@ -54,7 +56,12 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 
-	db.todo.findById(todoId)
+	db.todo.findOne({
+			where: {
+				id: todoId,
+				userId: req.user.id
+			}
+		})
 		.then(function(todo) {
 
 			if (!!todo) {
@@ -95,21 +102,23 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 
 	var todoId = parseInt(req.params.id, 10);
 	db.todo.destroy({
-		where: {
-			id: todoId
-		}
-	}).then(function(rowsDeleted) {
-		if (rowsDeleted === 0) {
-			res.status(404).json({
-				"message": "no item found"
-			});
-		} else {
-			res.status(204).send();
-		}
+			where: {
+				id: todoId,
+				userId: req.user.id
+			}
+		})
+		.then(function(rowsDeleted) {
+			if (rowsDeleted === 0) {
+				res.status(404).json({
+					"message": "no item found"
+				});
+			} else {
+				res.status(204).send();
+			}
 
-	}, function() {
+		}, function() {
 
-	});
+		});
 });
 
 //update an item
@@ -129,7 +138,12 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	}
 
 	// update
-	db.todo.findById(todoId)
+	db.todo.findOne({
+			where: {
+				id: todoId,
+				userId: req.user.id
+			}
+		})
 		.then(function(todo) {
 			if (todo) {
 				todo.update(attributes)
@@ -184,7 +198,7 @@ app.post('/users/login', function(req, res) {
 });
 
 db.sequelize.sync({
-	force: true
+	// force: true
 }).then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening to port : ' + PORT);
